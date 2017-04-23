@@ -9,6 +9,7 @@ import csv
 def run():
     # serial = serial.Serial('/dev/cu.SLAB_USBtoUART', 115200, timeout=10)
     serial = start_serial('/dev/cu.SLAB_USBtoUART', 230400)
+    sensor_num = 6
 
     #serial port for BT
     # serial2 = start_serial('/dev/cu.HC-05-DevB', 9600)
@@ -16,30 +17,70 @@ def run():
     # Change output format in euler
     # serial.write("<sof1>\r\n")
 
-    # date_stamp = time.strftime("%Y-%m-%d-%H-%M-%S", time.gmtime())
-    # with open('./'+ date_stamp + '.csv', 'w') as csvfile:
-    #     writer = csv.writer(csvfile, delimiter=',')
-    #     # add index to the first row
-    #     writer.writerow(['1_x','1_y','1_z','2_x','2_y','2_z','3_x','3_y','3_z',\
-    #         '4_x','4_y','4_z','5_x','5_y','5_z','6_x','6_y','6_z'])
+    date_stamp = time.strftime("%Y-%m-%d-%H-%M-%S", time.gmtime())
+    with open('./'+ date_stamp + '.csv', 'w') as csvfile:
+        writer = csv.writer(csvfile, delimiter=',')
+        # add index to the first row
+        writer.writerow(['1_x','1_y','1_z','2_x','2_y','2_z','3_x','3_y','3_z',\
+            '4_x','4_y','4_z','5_x','5_y','5_z','6_x','6_y','6_z'])
 
-    while True:
-        unsorted_data = get_serial_data_set(serial, 6)
+        # init data to compare diff
+        init_data = get_single_data(serial, sensor_num)
+        print init_data
 
-        # make list to write
-        sorted_data = []
+        while True:
+            unsorted_data = get_serial_data_set(serial, sensor_num)
+            arranged_data = parse_in_writer_form(unsorted_data)
 
-        for i in range(1, len(unsorted_data)+1):
-            for j in range(0, len(unsorted_data)):
-                if unsorted_data[j][0] == str(i):
-                    sorted_data.append(unsorted_data[j])
-                    break
-
-        print sorted_data
-
-        # writer.writerow(arranged_data)
+            # write only when arms are not in init position
+            if is_diff_init(init_data, arranged_data) == True:
+                print arranged_data
+                writer.writerow(arranged_data)
 
     serial.close()
+
+def is_diff_init(init_data, current_data, tolerance = 7):
+
+    for i in range(0, len(init_data)):
+        if abs(float(init_data[i]) - float(current_data[i])) > tolerance:
+            return True
+
+    return False
+
+def get_single_data(serial_obj, sensor_num):
+    unsorted_data = get_serial_data_set(serial_obj, sensor_num)
+    return parse_in_writer_form(unsorted_data)
+
+def parse_in_writer_form(unsorted_data):
+    # make list to write
+    sorted_data = []
+
+    for i in range(1, len(unsorted_data)+1):
+        is_filled = False
+        for j in range(0, len(unsorted_data)):
+            if unsorted_data[j][0] == str(i):
+                sorted_data.append(unsorted_data[j])
+                is_filled = True
+                break
+        if is_filled == False:
+            dummy_data = [0,0,0,0,0]
+            sorted_data.append(dummy_data)
+
+
+    # print sorted_data
+
+    # select data to write in cvs file
+    data_to_write = []
+
+    for i in range(0, len(sorted_data)):
+        data_to_write.append(sorted_data[i][1]) # x value
+        data_to_write.append(sorted_data[i][2]) # y value
+        data_to_write.append(sorted_data[i][3]) # z value
+
+    # print data_to_write
+
+    return data_to_write
+
 
 def get_serial_data_set(serial_obj, sensor_num):
     sensor_data_set = []
