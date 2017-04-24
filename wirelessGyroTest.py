@@ -39,13 +39,24 @@ def run():
 
     serial.close()
 
-def is_diff_init(init_data, current_data, tolerance = 7):
-
+def is_diff_init(init_data, current_data, tolerance = 500):
+    tolerance_sum = 0
+    # 차 의 합을 비교하는게 좋을지도 모르겠다
     for i in range(0, len(init_data)):
-        if abs(float(init_data[i]) - float(current_data[i])) > tolerance:
+        tolerance_sum = tolerance_sum + abs(float(init_data[i]) - float(current_data[i]))
+        if tolerance_sum > tolerance:
             return True
 
     return False
+
+
+
+    # # tolerance = 65, using each element's diff
+    # for i in range(0, len(init_data)):
+    #     if abs(float(init_data[i]) - float(current_data[i])) > tolerance:
+    #         return True
+
+    # return False
 
 def get_single_data(serial_obj, sensor_num):
     unsorted_data = get_serial_data_set(serial_obj, sensor_num)
