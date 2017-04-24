@@ -6,6 +6,8 @@ import time
 import sys
 import csv
 
+g_stop_count = 0
+
 def run():
     # serial = serial.Serial('/dev/cu.SLAB_USBtoUART', 115200, timeout=10)
     serial = start_serial('/dev/cu.SLAB_USBtoUART', 230400)
@@ -22,41 +24,75 @@ def run():
         writer = csv.writer(csvfile, delimiter=',')
         # add index to the first row
         writer.writerow(['1_x','1_y','1_z','2_x','2_y','2_z','3_x','3_y','3_z',\
-            '4_x','4_y','4_z','5_x','5_y','5_z','6_x','6_y','6_z'])
+            '4_x','4_y','4_z','5_x','5_y','5_z','6_x','6_y','6_z','stop'])
 
         # init data to compare diff
         init_data = get_single_data(serial, sensor_num)
         print init_data
 
+        previous_data = init_data
+        stop_flag = False
+        first_stop = True
         while True:
+            # read new data
             unsorted_data = get_serial_data_set(serial, sensor_num)
-            arranged_data = parse_in_writer_form(unsorted_data)
+            current_data = parse_in_writer_form(unsorted_data)
 
-            # write only when arms are not in init position
-            if is_diff_init(init_data, arranged_data) == True:
-                print arranged_data
-                writer.writerow(arranged_data)
+            # check if it is stop
+            stop_flag = is_stop(previous_data, current_data)
+
+
+            if stop_flag == True and first_stop == True:
+                current_data.append('stop')
+
+                print current_data
+                writer.writerow(current_data)
+
+                # remove 'stop' sign
+                current_data.pop()
+                first_stop = False
+
+            elif stop_flag == False:
+
+                print current_data
+                writer.writerow(current_data)
+                # init first_stop flag
+                first_stop = True
+
+            # update previous_data
+            previous_data = current_data
 
     serial.close()
 
+def is_stop(prev, current, stop_frame_num = 15, tolerance = 200):
+    tolerance_sum = 0
+    global g_stop_count
+
+    for i in range(0, len(current)):
+        tolerance_sum = tolerance_sum + abs(float(prev[i]) - float(current[i]))
+
+    # not moved
+    if tolerance_sum < tolerance:
+        g_stop_count = g_stop_count + 1
+    # moved (tolerance_sum >= tolerance)
+    else:
+        g_stop_count = 0
+
+
+    if g_stop_count >= stop_frame_num:
+        return True
+    else:
+        return False
+
+
 def is_diff_init(init_data, current_data, tolerance = 500):
     tolerance_sum = 0
-    # 차 의 합을 비교하는게 좋을지도 모르겠다
     for i in range(0, len(init_data)):
         tolerance_sum = tolerance_sum + abs(float(init_data[i]) - float(current_data[i]))
         if tolerance_sum > tolerance:
             return True
 
     return False
-
-
-
-    # # tolerance = 65, using each element's diff
-    # for i in range(0, len(init_data)):
-    #     if abs(float(init_data[i]) - float(current_data[i])) > tolerance:
-    #         return True
-
-    # return False
 
 def get_single_data(serial_obj, sensor_num):
     unsorted_data = get_serial_data_set(serial_obj, sensor_num)
