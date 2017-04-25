@@ -68,13 +68,8 @@ def is_stop(prev, current, stop_frame_num = 15, tolerance = 200):
     tolerance_sum = 0
     global g_stop_count
 
-    for i in range(0, len(prev)):
-        tolerance_sum = tolerance_sum + abs(float(prev[i]) - float(current[i]))
-
-    # not moved
-    if tolerance_sum < tolerance:
+    if is_diff(prev, current, tolerance) == False:
         g_stop_count = g_stop_count + 1
-    # moved (tolerance_sum >= tolerance)
     else:
         g_stop_count = 0
 
@@ -85,10 +80,10 @@ def is_stop(prev, current, stop_frame_num = 15, tolerance = 200):
         return False
 
 
-def is_diff_init(init_data, current_data, tolerance = 500):
+def is_diff(prev, current, tolerance = 500):
     tolerance_sum = 0
-    for i in range(0, len(init_data)):
-        tolerance_sum = tolerance_sum + abs(float(init_data[i]) - float(current_data[i]))
+    for i in range(0, len(prev)):
+        tolerance_sum = tolerance_sum + abs(float(prev[i]) - float(current[i]))
         if tolerance_sum > tolerance:
             return True
 
