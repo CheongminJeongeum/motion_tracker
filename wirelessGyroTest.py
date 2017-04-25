@@ -68,7 +68,7 @@ def is_stop(prev, current, stop_frame_num = 15, tolerance = 200):
     tolerance_sum = 0
     global g_stop_count
 
-    for i in range(0, len(current)):
+    for i in range(0, len(prev)):
         tolerance_sum = tolerance_sum + abs(float(prev[i]) - float(current[i]))
 
     # not moved
@@ -150,6 +150,14 @@ def get_serial_data_set(serial_obj, sensor_num):
 
         splited_data = data_str.split(",")
         # print splited_data
+
+        # exception for wrong slice
+        if len(splited_data) is not 5:
+            splited_data = ['1', '0','0','0','100']
+            break
+        if len(splited_data[0]) is not 5: # not '100-id'
+            splited_data = ['1', '0','0','0','100']
+            break
 
         # change '100-id' to 'id' in [0]
         ID_data = splited_data[0].split("-")
