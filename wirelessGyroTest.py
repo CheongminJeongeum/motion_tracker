@@ -10,7 +10,8 @@ g_stop_count = 0
 
 def run():
     # serial = serial.Serial('/dev/cu.SLAB_USBtoUART', 115200, timeout=10)
-    serial = start_serial('/dev/cu.SLAB_USBtoUART', 230400)
+    # serial = start_serial('/dev/cu.SLAB_USBtoUART', 230400)
+    serial = start_serial('COM4', 230400)
     sensor_num = 6
 
     #serial port for BT
@@ -18,6 +19,9 @@ def run():
 
     # Change output format in euler
     # serial.write("<sof1>\r\n")
+
+    # Change baudrate
+    # serial.write("<sb6>\r\n")
 
     date_stamp = time.strftime("%Y-%m-%d-%H-%M-%S", time.gmtime())
     with open('./'+ date_stamp + '.csv', 'w') as csvfile:
