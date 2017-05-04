@@ -5,8 +5,11 @@ extern boolean stringComplete;
 extern char c_sensor_data[6][3][10];
 extern double sensor_data[6][3];
 extern double sensor_data_prev[6][3];
-extern const int TOLERANCE;
+extern int stop_count_f;
+extern const double TOLERANCE;
+extern const int FRAME_NUM;
 
+boolean is_stop(int frame_num, int tolerance);
 boolean is_diff(int tolerance);
 void update_data_prev();
 void print_float();

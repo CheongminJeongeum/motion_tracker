@@ -8,7 +8,9 @@ boolean stringComplete = false;
 char c_sensor_data[6][3][10] = {};
 double sensor_data[6][3] = {};
 double sensor_data_prev[6][3] = {};
-const int TOLERANCE = 20;
+int stop_count_f = 0;
+const double TOLERANCE = 10;
+const int FRAME_NUM = 15;
 
 
 void setup() {
@@ -25,24 +27,22 @@ void setup() {
 
 void loop() { // run over and over
 
-  get_one_line();
-  // Serial.println(str_to_parse);
-  fill_c_sensor_data();
-  print_c_sensor_data();
-  char2float_sensor_data();
-  Serial.println("======float below");
-  print_float();
-
   update_data_prev();
 
-  if(is_diff(TOLERANCE)){
-    Serial.println("diff!!!!");
+  get_one_line();
+
+  // Serial.println(str_to_parse);
+  fill_c_sensor_data();
+  // print_c_sensor_data();
+  char2float_sensor_data();
+
+  if(is_stop(FRAME_NUM, TOLERANCE) == false){
+    // Serial.println("======float below");
+    print_float();
+  }
+  else{
+    // Serial.println("stop!!!!");
   }
   
-  //need to check diff
-  //if diff, stop printing
 
-  
 }
-
-

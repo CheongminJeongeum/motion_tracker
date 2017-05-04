@@ -1,9 +1,22 @@
 #include "WProgram.h"
 #include "serialParse.hpp"
 
+boolean is_stop(int frame_num, int tolerance){
+
+	if(is_diff(tolerance) == false)
+		stop_count_f += 1;
+	else
+		stop_count_f = 0;
+
+	if(stop_count_f >= frame_num)
+		return true;
+	else
+		return false;
+}
+
 boolean is_diff(int tolerance){
-	int tolerance_sum = 0;
-	int diff = 0;
+	double tolerance_sum = 0;
+	double diff = 0;
 
 	for(int i=0;i<6;i++){
     for(int j=0;j<3;j++){
@@ -107,6 +120,10 @@ void get_one_line(){
     }
     // if complete string received, copy to str_to_parse
     if(stringComplete){
+    	// exception handling for sliced string (by wrong ON timing) 
+    	if(receive_buf.substring(0,4) != "100-"){
+    		receive_buf = "";
+    	}
       str_to_parse = "";
       str_to_parse = receive_buf;
       receive_buf = "";
