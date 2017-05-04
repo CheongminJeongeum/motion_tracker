@@ -1,6 +1,34 @@
 #include "WProgram.h"
 #include "serialParse.hpp"
 
+boolean is_diff(int tolerance){
+	int tolerance_sum = 0;
+	int diff = 0;
+
+	for(int i=0;i<6;i++){
+    for(int j=0;j<3;j++){
+    	diff = abs(sensor_data_prev[i][j] - sensor_data[i][j]);
+    	if(diff > 180)
+    		tolerance_sum += 360 - diff;
+    	else
+    		tolerance_sum += diff;
+    }
+  }
+
+  if(tolerance_sum > tolerance)
+  	return true;
+  else
+  	return false;
+}
+
+void update_data_prev(){
+	for(int i=0;i<6;i++){
+    for(int j=0;j<3;j++){
+      sensor_data_prev[i][j] = sensor_data[i][j];
+    }
+  }
+}
+
 void print_float(){
   // double foo = atof(c_sensor_data[0][0]);
   // Serial.println(foo);
@@ -39,7 +67,7 @@ void print_c_sensor_data(){
   }
 }
 
-void fill_data(){
+void fill_c_sensor_data(){
   int sensor_num = 0;
   sensor_num = str_to_parse.charAt(4) - '0';
   // Serial.println(sensor_num);

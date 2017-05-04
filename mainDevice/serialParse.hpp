@@ -5,10 +5,13 @@ extern boolean stringComplete;
 extern char c_sensor_data[6][3][10];
 extern double sensor_data[6][3];
 extern double sensor_data_prev[6][3];
+extern const int TOLERANCE;
 
+boolean is_diff(int tolerance);
+void update_data_prev();
 void print_float();
 void char2float_sensor_data();
 void print_c_sensor_data();
-void fill_data();
+void fill_c_sensor_data();
 void get_one_line();
 void blink();
