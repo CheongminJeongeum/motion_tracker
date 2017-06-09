@@ -55,6 +55,29 @@ void print_float(){
     Serial.print("\n");
   }
 }
+void print_float_two_set(){
+  for(int i=0;i<6;i=i+3){
+    Serial.print(i+1);
+    Serial.print(": ");
+    for(int j=0;j<3;j++){
+      Serial.print(sensor_data[i][j]);
+      Serial.print(" ");
+    }
+    Serial.print("\n");
+  }
+}
+
+void print_float_two_set_BT(){
+  for(int i=0;i<6;i=i+3){
+    Serial3.print(i+1);
+    Serial3.print(": ");
+    for(int j=0;j<3;j++){
+      Serial3.print(sensor_data[i][j]);
+      Serial3.print(" ");
+    }
+    Serial3.print("\n");
+  }
+}
 
 void char2float_sensor_data(){
   for(int i=0;i<6;i++){

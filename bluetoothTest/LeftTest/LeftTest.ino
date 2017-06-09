@@ -12,6 +12,9 @@ int stop_count_f = 0;
 const double TOLERANCE = 10;
 const int FRAME_NUM = 15;
 
+String buf_flex_data;
+boolean flex_str_complete = false;
+
 void setup(){
 	pinMode(13, OUTPUT);
   digitalWrite(13, HIGH);
@@ -24,26 +27,27 @@ void setup(){
 
   receive_buf.reserve(200);
   str_to_parse.reserve(200);
-
+  buf_flex_data.reserve(50);
 }
 
-String buf_flex_data;
 
 void loop(){
 	// receive flex data
-	while (Serial2.available() > 0) {
-    char inByte = Serial2.read();
-    if(inByte == '\n')
-    	break; //대신 플래그를 사용하자 루프 돌면서 기다리지 말고  
+	// while (Serial2.available() > 0) {
+ //    char inByte = Serial2.read();
+ //    if(inByte == '\n')
+ //    	break; //대신 플래그를 사용하자 루프 돌면서 기다리지 말고  
     
-    buf_flex_data.append(inByte);
-  }
-  // print flex data
-  if(buf_flex_data != ""){
-  	Serial.println(buf_flex_data);
-  	Serial3.println(buf_flex_data);
-  	buf_flex_data = ""; // reset buf string
-  }
+ //    buf_flex_data.append(inByte);
+ //  }
+
+  // // print flex data
+  // if(flex_str_complete == true){
+  // 	Serial.println(buf_flex_data);
+  // 	Serial3.println(buf_flex_data);
+  // 	buf_flex_data = ""; // reset buf string
+  //   flex_str_complete = false;
+  // }
   
   // print gyro data
   update_data_prev();
@@ -57,7 +61,10 @@ void loop(){
 
   if(is_stop(FRAME_NUM, TOLERANCE) == false){
     // Serial.println("======float below");
-    print_float();
+    // print_float();
+    print_float_two_set();
+    // Serial3.println("====");
+    print_float_two_set_BT();
   }
   else{
     // Serial.println("stop!!!!");
@@ -70,3 +77,18 @@ void loop(){
 
 }
 
+/*
+void serialEvent2() {
+  while (Serial2.available()) {
+    // get the new byte:
+    char inChar = (char)Serial2.read();
+    // add it to the inputString:
+    buf_flex_data += inChar;
+    // if the incoming character is a newline, set a flag
+    // so the main loop can do something about it:
+    if (inChar == '\n') {
+      flex_str_complete = true;
+    }
+  }
+}
+*/

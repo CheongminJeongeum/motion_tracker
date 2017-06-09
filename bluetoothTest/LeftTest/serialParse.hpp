@@ -13,6 +13,8 @@ boolean is_stop(int frame_num, int tolerance);
 boolean is_diff(int tolerance);
 void update_data_prev();
 void print_float();
+void print_float_two_set();
+void print_float_two_set_BT();
 void char2float_sensor_data();
 void print_c_sensor_data();
 void fill_c_sensor_data();
