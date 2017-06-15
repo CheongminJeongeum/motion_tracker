@@ -54,12 +54,21 @@ void loop(){
       fold[i] = '1'; // fold
   }
 
-
+  // print threashold
+  Serial.print("threshold: ");
   for(int i=0;i<FLEX_NUM;i++){
-   Serial.print(flex_sensor[i]);
+  	Serial.print(threshold[i]); Serial.print(" ");
+  }
+  Serial.print("\n");
+
+  // print ADC value & fold info
+  for(int i=0;i<FLEX_NUM;i++){
+    Serial.print(flex_sensor[i]);
+    Serial.print(":");
     Serial.print(fold[i]);
     Serial.print(",");
 
+    // print fold info to BT
     mySerial.print(fold[i]);
     mySerial.print(",");
   }
