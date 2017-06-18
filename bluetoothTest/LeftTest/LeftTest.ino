@@ -9,6 +9,10 @@
 
 // 4 LED +
 // 5 LED -
+/*
+  variable for start_stop
+*/
+static volatile bool is_running = false;
 
 /*
   variable for gyro value
@@ -39,6 +43,8 @@ char fold[FLEX_NUM] = {};
 void setup(){
   pinMode(13, OUTPUT);
   digitalWrite(13, HIGH);
+  pinMode(4, OUTPUT);
+  pinMode(5, OUTPUT);
 
   Serial.begin(230400); // local port for debug
   Serial1.begin(230400); // port income from gyro sensors
@@ -66,9 +72,11 @@ void setup(){
   pinMode(A2, INPUT);
   pinMode(A3, INPUT);
 
+  pinMode(START_SW_PIN, INPUT_PULLUP);
   pinMode(INT_PIN_MAX,INPUT_PULLUP);
   pinMode(INT_PIN_MIN,INPUT_PULLUP);
-  attachInterrupt(digitalPinToInterrupt(INT_PIN_MAX), INT_set_max_threshold, FALLING);
+  attachInterrupt(digitalPinToInterrupt(INT_PIN_MAX), INT_start_stop, FALLING);
+  // attachInterrupt(digitalPinToInterrupt(INT_PIN_MAX), INT_set_max_threshold, FALLING);
   attachInterrupt(digitalPinToInterrupt(INT_PIN_MIN), INT_set_min_threshold, FALLING); 
 }
 
@@ -101,7 +109,7 @@ void loop(){
 
 
   // print flex data
-  if(flex_str_complete == true){
+  if(flex_str_complete == true && is_running == true){
     
     Serial.print("F:");
     Serial3.print("F:"); // BT
@@ -127,19 +135,19 @@ void loop(){
   // print_c_sensor_data();
   char2float_sensor_data();
 
-  if(is_stop(FRAME_NUM, TOLERANCE) == false){
+  if(is_stop(FRAME_NUM, TOLERANCE) == false && is_running == true){
     // Serial.println("======float below");
     // print_float();
     print_float_two_set();
     // Serial3.println("====");
     print_float_two_set_BT();
   }
-  else{
-    print_float_two_set();
-    print_float_two_set_BT();
-    Serial.println("Stop");
-    Serial3.println("Stop");
-  }
+  // else{
+  //   print_float_two_set();
+  //   print_float_two_set_BT();
+  //   Serial.println("Stop by is_stop()");
+  //   // Serial3.println("Stop");
+  // }
 
 
 
@@ -160,6 +168,40 @@ void serialEvent2() {
       flex_str_complete = true;
     }
   }
+}
+
+void INT_start_stop(){
+  static unsigned long last_interrupt_time = 0;
+  unsigned long interrupt_time = millis();
+  // If interrupts come faster than 200ms, assume it's a bounce and ignore
+  if (interrupt_time - last_interrupt_time > 300) 
+  {
+    if(is_running == false){
+    is_running = true;
+
+    //turn state LED ON
+    digitalWrite(4, HIGH);
+    digitalWrite(5, LOW);
+
+    Serial.println("start");
+    Serial3.println("start");
+
+    // reset buf string
+    buf_flex_data = ""; 
+    flex_str_complete = false;
+    }
+    else{
+      is_running = false;
+
+      //turn state LED OFF
+      digitalWrite(4, LOW);
+      digitalWrite(5, HIGH);
+
+      Serial.println("stop");
+      Serial3.println("stop");
+    }
+  }
+  last_interrupt_time = interrupt_time;
 }
 
 void INT_set_max_threshold(){
