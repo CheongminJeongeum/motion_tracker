@@ -55,11 +55,11 @@ void loop(){
   }
 
   // print threashold
-  Serial.print("threshold: ");
-  for(int i=0;i<FLEX_NUM;i++){
-  	Serial.print(threshold[i]); Serial.print(" ");
-  }
-  Serial.print("\n");
+//  Serial.print("threshold: ");
+//  for(int i=0;i<FLEX_NUM;i++){
+//  	Serial.print(threshold[i]); Serial.print(" ");
+//  }
+//  Serial.print("\n");
 
   // print ADC value & fold info
   for(int i=0;i<FLEX_NUM;i++){
@@ -75,7 +75,7 @@ void loop(){
   Serial.print("\n");
   mySerial.print("\n");
   
-  delay(300);
+  delay(100);
 
 }
 

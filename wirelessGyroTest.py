@@ -43,8 +43,10 @@ def run():
             current_data = parse_in_writer_form(unsorted_data)
 
             # check if it is stop
-            stop_flag = is_stop(previous_data, current_data)
-
+            # stop_flag = is_stop(previous_data, current_data)
+            
+            # don't stop!!!
+            stop_flag = False
 
             if stop_flag == True and first_stop == True:
                 current_data.append('stop')
