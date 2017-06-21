@@ -5,7 +5,8 @@
 #define FLEX_NUM 4
 #define INT_PIN_MAX 11
 #define INT_PIN_MIN 2
-#define START_SW_PIN 3
+#define START_SW_PIN 6
+#define EXTRA_SW 3
 
 // 4 LED +
 // 5 LED -
@@ -50,7 +51,7 @@ void setup(){
   Serial1.begin(230400); // port income from gyro sensors
   Serial2.begin(9600); // BT to receive flex data from right hand
   Serial3.begin(230400); // BT for smartphone 
-  Serial.println("start!");
+  Serial.println("init start!");
 
   receive_buf.reserve(200);
   str_to_parse.reserve(200);
@@ -75,8 +76,8 @@ void setup(){
   pinMode(START_SW_PIN, INPUT_PULLUP);
   pinMode(INT_PIN_MAX,INPUT_PULLUP);
   pinMode(INT_PIN_MIN,INPUT_PULLUP);
-  attachInterrupt(digitalPinToInterrupt(INT_PIN_MAX), INT_start_stop, FALLING);
-  // attachInterrupt(digitalPinToInterrupt(INT_PIN_MAX), INT_set_max_threshold, FALLING);
+  attachInterrupt(digitalPinToInterrupt(START_SW_PIN), INT_start_stop, FALLING);
+  attachInterrupt(digitalPinToInterrupt(INT_PIN_MAX), INT_set_max_threshold, FALLING);
   attachInterrupt(digitalPinToInterrupt(INT_PIN_MIN), INT_set_min_threshold, FALLING); 
 }
 
@@ -109,7 +110,7 @@ void loop(){
 
 
   // print flex data
-  if(flex_str_complete == true && is_running == true){
+  if(flex_str_complete == true && is_running == true && buf_flex_data.length() == 9){
     
     Serial.print("F:");
     Serial3.print("F:"); // BT
@@ -121,6 +122,10 @@ void loop(){
     }
     Serial.println(buf_flex_data);
     Serial3.println(buf_flex_data); // BT
+    buf_flex_data = ""; // reset buf string
+    flex_str_complete = false;
+  }
+  else if(buf_flex_data.length() != 9){
     buf_flex_data = ""; // reset buf string
     flex_str_complete = false;
   }
