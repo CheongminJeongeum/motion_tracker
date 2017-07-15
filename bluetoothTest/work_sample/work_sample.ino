@@ -38,7 +38,8 @@ volatile int threshold[FLEX_NUM] = {330,330,330,330};
 volatile int MAX_threshold[FLEX_NUM] = {700,700,700,700};
 volatile int MIN_threshold[FLEX_NUM] = {};
 volatile int update_flag = 0;
-char fold[FLEX_NUM] = {};
+char fold[8] = {};
+char fold_right[FLEX_NUM] = {};
 
 
 void setup(){
@@ -87,7 +88,7 @@ void loop(){
     get flex data
   */
   for(int i=0; i<FLEX_NUM; i++){
-    flex_sensor[i] = analogRead(i);
+    flex_sensor[i] = analogRead((FLEX_NUM - 1) - i);
     if(flex_sensor[i] > threshold[i]){
       fold[i] = '0'; // unfold
     }
@@ -112,16 +113,32 @@ void loop(){
   // print flex data
   if(flex_str_complete == true && is_running == true && buf_flex_data.length() == 9){
     
+    for(int i=0; i<FLEX_NUM; i++){
+      if(buf_flex_data.charAt(i*2) == '0' || buf_flex_data.charAt(i*2) == '1'){
+        fold[i+4] = buf_flex_data.charAt(i*2);
+      }
+    }
+
     Serial.print("F:");
     Serial3.print("F:"); // BT
-    for(int i=FLEX_NUM-1;i>=0;i--){
+    for(int i=0; i<8; i++){
       Serial.print(fold[i]);
       Serial.print(",");
       Serial3.print(fold[i]); // BT
       Serial3.print(","); // BT
     }
-    Serial.println(buf_flex_data);
-    Serial3.println(buf_flex_data); // BT
+    Serial.print("\n");
+    Serial3.print("\n");
+
+    // Serial.print("test right:");
+    // for(int i=0;i<FLEX_NUM;i++){
+      
+    //   Serial.print(fold_right[i]);
+    //   Serial.print(",");
+    // }
+
+    // Serial.println(buf_flex_data);
+    // Serial3.println(buf_flex_data); // BT
     buf_flex_data = ""; // reset buf string
     flex_str_complete = false;
   }
@@ -196,7 +213,14 @@ void INT_start_stop(){
     flex_str_complete = false;
     }
     else{
-      is_running = false;
+      // char comp = 0b00001111;
+      // if(match_fold(comp)){
+      //   Serial.println("compared!!!");
+      // }
+      // else
+      //   Serial.println("didn't work");
+
+      is_running = false;    
 
       //turn state LED OFF
       digitalWrite(4, LOW);
@@ -214,7 +238,7 @@ void INT_set_max_threshold(){
 
   // update flex data & sum_value
   for(int i=0;i<FLEX_NUM;i++){
-    flex_sensor[i] = analogRead(i);
+    flex_sensor[i] = analogRead((FLEX_NUM - 1) - i);
     sum_value += flex_sensor[i];
   }
 
@@ -239,7 +263,7 @@ void INT_set_min_threshold(){
 
   // update flex data & sum_value
   for(int i=0;i<FLEX_NUM;i++){
-    flex_sensor[i] = analogRead(i);
+    flex_sensor[i] = analogRead((FLEX_NUM - 1) - i);
     sum_value += flex_sensor[i];
   }
 
@@ -259,6 +283,31 @@ void INT_set_min_threshold(){
     update_flag = 0;
   }
 }
+
+// bool match_fold(char compare_data){
+//   char comp[8] = {};
+//   char temp = 1;
+
+//   for(int i =0; i<8; i++){
+//     if((compare_data && temp * 2 > 0){
+//       comp[i] = 1;
+//     } 
+//     else
+//       comp[i] = 0;
+    
+
+//     if(fold[i] !=  comp[i]){
+//       return false;
+//     }  
+//   }
+
+//   return true;
+// }
+
+
+
+
+
 
 
 
